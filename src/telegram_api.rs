@@ -100,7 +100,10 @@ impl TelegramAPI {
 
                 for response in json_obj.result {
                     next_update = response.update_id + 1;
-                    callback_func(response.message.chat.id, &response.message.text);
+                    thread::spawn(move || {
+                        //run callback in new thread to avoid stalling polling
+                        callback_func(response.message.chat.id, &response.message.text);
+                    });
                 }
 
                 thread::sleep(time::Duration::from_millis(50));
